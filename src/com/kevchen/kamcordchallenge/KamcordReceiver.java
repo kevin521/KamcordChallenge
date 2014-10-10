@@ -18,11 +18,13 @@ public class KamcordReceiver {
 	ProgressDialog pd;
 	Activity activity;
 
+	// Method to initiate the HTTP request to Kamcord
 	public void retrieveList(Activity act) {
 		activity = act;
 		new AsyncSearch().execute();
 	}
 
+	// TODO Change this so it isn't just an ugly ProgressDialog
 	private class AsyncSearch extends AsyncTask<String, Void, JSONArray> {
 		protected void onPreExecute() {
 			pd = new ProgressDialog(activity);
@@ -37,12 +39,12 @@ public class KamcordReceiver {
 			try {
 				return getList();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return null;
 		}
 
+		// After the response has been received, send it back to the original activity
 		protected void onPostExecute(JSONArray videos) {
 			try {
 				((HomeActivity) activity).listReady(videos);
@@ -51,6 +53,8 @@ public class KamcordReceiver {
 			}
 		}
 
+		// Performs the HTTP request to get the JSON file
+		// TODO Cleaner implementation
 		private JSONArray getList() throws JSONException {
 			URL u;
 			JSONArray videos = new JSONArray();
@@ -71,7 +75,7 @@ public class KamcordReceiver {
 				int bytesRead = 0;
 				String result = "";
 
-				byte[] buff = new byte[999999];
+				byte[] buff = new byte[999999]; // This shouldn't be so high lol
 				int k = -1;
 				while ((k = conn.getInputStream().read(buff, 0, buff.length)) > -1) {
 
@@ -89,7 +93,6 @@ public class KamcordReceiver {
 				JSONObject temp = new JSONObject(result);
 				JSONObject res = (JSONObject) temp.get("response");
 				videos = (JSONArray) res.get("video_list");
-				
 				
 				bis.close();
 

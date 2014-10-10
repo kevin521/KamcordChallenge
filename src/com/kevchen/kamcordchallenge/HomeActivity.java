@@ -35,15 +35,17 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 
+		// If the list of videos isn't loaded, it queries them from the server
 		if (videoList == null) {
 			kr = new KamcordReceiver();
 			kr.retrieveList(this);
 		}
 	}
 
+	// After a response is received from the server, the JSON file is parsed
 	public void listReady(JSONArray videos) {
-		// TODO Auto-generated method stub
-		videoList = videos;
+		videoList = videos; // This videoList will be used later to see which row was clicked by the user
+		
 		if (videos != null) {
 
 			numVideos = videos.length();
@@ -66,19 +68,18 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 
 					videoData[i] = new Video(title, thumbnail, video_url);
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			// dismiss the loading screen
+			
+			// dismiss the loading screen (NEED TO CHANGE THIS IS AWFUL CODE)
 			kr.pd.dismiss();
 
+			// Custom list adapter for the custom rows
 			VideoListAdapter adapter = new VideoListAdapter(this,
 					R.layout.activity_listview, videoData);
 
@@ -90,6 +91,7 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 	}
 
 	// Gets the bitmap images
+	// TODO move this to a seperate class for async tasks
 	private class GetImage extends AsyncTask<String, Void, Bitmap> {
 
 		@Override
@@ -108,10 +110,10 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 
 	}
 
-	@Override
+	// Right now clicking a row opens the video in the default video app on the phone
+	// TODO Have the video load in the app
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position,
 			long arg3) {
-		// TODO Auto-generated method stub
 
 		String message = null;
 		try {
@@ -121,7 +123,6 @@ public class HomeActivity extends Activity implements OnItemClickListener {
 			e.printStackTrace();
 		}
 
-		System.out.println(message);
 		Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
 		intent.setDataAndType(Uri.parse(message), "video/*");
 		startActivity(intent);
